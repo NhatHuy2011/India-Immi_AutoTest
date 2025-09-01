@@ -57,9 +57,11 @@ public class TripDetailPage {
             input.sendKeys(keyword);
 
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            WebElement option = wait.until(ExpectedConditions.elementToBeClickable(
+            WebElement option = wait.until(ExpectedConditions.visibilityOfElementLocated(
                     By.xpath("//div[@role='option' and @data-value=\"" + optionToPick + "\"]")
             ));
+
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", option);
             option.click();
 
             System.out.println("Đã chọn cảng nhập cảnh (search): " + optionToPick);
@@ -129,10 +131,17 @@ public class TripDetailPage {
             Select select = new Select(selectElement);
             select.selectByValue(valueToSelect);
 
+            // kích hoạt sự kiện change & input để framework nhận giá trị
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            js.executeScript(
+                    "arguments[0].dispatchEvent(new Event('input', { bubbles: true }));" +
+                            "arguments[0].dispatchEvent(new Event('change', { bubbles: true }));",
+                    selectElement
+            );
+
             String selectedText = select.getFirstSelectedOption().getText();
 
-            // Cập nhật text trên button
-            JavascriptExecutor js = (JavascriptExecutor) driver;
+            // Cập nhật text hiển thị trên button (nếu button chỉ là UI fake)
             js.executeScript("arguments[0].innerText=arguments[1];", button, selectedText);
 
             System.out.println("Đã chọn [" + buttonLocator + "]: " + selectedText);

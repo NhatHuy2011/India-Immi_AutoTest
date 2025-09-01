@@ -26,6 +26,14 @@ public class PassengerInfoPage {
 
     private final By expiredInput = By.id("expired_date");
 
+    private final By passportUploadInput = By.id("passport-upload");
+
+    private final By portrainUploadInput = By.id("portrait-upload");
+
+    private final By saveButton = By.cssSelector("button.inline-flex.w-32.h-14[type='submit']");
+
+    private final By cancelButton = By.cssSelector("button.w-32.h-14[type='button']");
+
     public PassengerInfoPage(WebDriver driver) {
         this.driver = driver;
     }
@@ -53,14 +61,16 @@ public class PassengerInfoPage {
             input.sendKeys(keyword);
 
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            WebElement option = wait.until(ExpectedConditions.elementToBeClickable(
+            WebElement option = wait.until(ExpectedConditions.visibilityOfElementLocated(
                     By.xpath("//div[@role='option' and @data-value=\"" + optionToPick + "\"]")
             ));
+
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", option);
             option.click();
 
-            System.out.println("Đã chọn cảng nhập cảnh (search): " + optionToPick);
+            System.out.println("Đã chọn quốc gia: " + optionToPick);
         } catch (Exception e) {
-            System.out.println("Lỗi khi search arrival_port: " + e.getMessage());
+            System.out.println("Lỗi khi search quốc gia: " + e.getMessage());
         }
     }
 
@@ -73,14 +83,16 @@ public class PassengerInfoPage {
             input.sendKeys(keyword);
 
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            WebElement option = wait.until(ExpectedConditions.elementToBeClickable(
+            WebElement option = wait.until(ExpectedConditions.visibilityOfElementLocated(
                     By.xpath("//div[@role='option' and @data-value=\"" + optionToPick + "\"]")
             ));
+
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", option);
             option.click();
 
-            System.out.println("Đã chọn cảng nhập cảnh (search): " + optionToPick);
+            System.out.println("Đã chọn quốc tịch: " + optionToPick);
         } catch (Exception e) {
-            System.out.println("Lỗi khi search arrival_port: " + e.getMessage());
+            System.out.println("Lỗi khi search quốc tịch: " + e.getMessage());
         }
     }
 
@@ -94,6 +106,86 @@ public class PassengerInfoPage {
         pickDate(expiredInput, dateValue);
     }
 
+    public void uploadPassport(String path){
+        WebElement passportUpload = driver.findElement(passportUploadInput);
+        passportUpload.sendKeys(path);
+    }
+
+    public void uploadPortrait(String path){
+        WebElement portraitUpload = driver.findElement(portrainUploadInput);
+        portraitUpload.sendKeys(path);
+    }
+
+    public void clickSave() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+
+        try {
+            // Kiểm tra sự tồn tại của nút
+            WebElement btn = wait.until(ExpectedConditions.presenceOfElementLocated(saveButton));
+            System.out.println("Nút tìm thấy: " + btn.isDisplayed());
+
+            // Kiểm tra trạng thái enabled
+            boolean isEnabled = btn.isEnabled();
+            String disabledAttr = btn.getAttribute("disabled");
+            System.out.println("Nút enabled: " + isEnabled + ", Thuộc tính disabled: " + disabledAttr);
+
+            if (!isEnabled || disabledAttr != null) {
+                throw new RuntimeException("Nút 'Tiếp tục' bị vô hiệu hóa. Kiểm tra form.");
+            }
+
+            // Scroll và click
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", btn);
+            btn.click(); // Thử click bằng Selenium trước
+            wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.cssSelector("div.grid.grid-cols-1.lg\\:grid-cols-2.gap-4")
+            ));
+            System.out.println("Nhấn nút thành công.");
+        } catch (Exception e) {
+            System.out.println("Lỗi khi nhấn nút: " + e.getMessage());
+            // Thử click bằng JS
+            WebElement btn = driver.findElement(saveButton);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.cssSelector("div.grid.grid-cols-1.lg\\:grid-cols-2.gap-4")
+            ));
+        }
+    }
+
+    public void clickCancel() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+
+        try {
+            // Kiểm tra sự tồn tại của nút
+            WebElement btn = wait.until(ExpectedConditions.presenceOfElementLocated(cancelButton));
+            System.out.println("Nút tìm thấy: " + btn.isDisplayed());
+
+            // Kiểm tra trạng thái enabled
+            boolean isEnabled = btn.isEnabled();
+            String disabledAttr = btn.getAttribute("disabled");
+            System.out.println("Nút enabled: " + isEnabled + ", Thuộc tính disabled: " + disabledAttr);
+
+            if (!isEnabled || disabledAttr != null) {
+                throw new RuntimeException("Nút 'Tiếp tục' bị vô hiệu hóa. Kiểm tra form.");
+            }
+
+            // Scroll và click
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", btn);
+            btn.click(); // Thử click bằng Selenium trước
+            wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.cssSelector("div.grid.grid-cols-1.lg\\:grid-cols-2.gap-4")
+            ));
+            System.out.println("Nhấn nút thành công.");
+        } catch (Exception e) {
+            System.out.println("Lỗi khi nhấn nút: " + e.getMessage());
+            // Thử click bằng JS
+            WebElement btn = driver.findElement(cancelButton);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.cssSelector("div.grid.grid-cols-1.lg\\:grid-cols-2.gap-4")
+            ));
+        }
+    }
+
     private void selectHiddenDropdown(By buttonLocator, By selectLocator, String valueToSelect) {
         try {
             WebElement button = driver.findElement(buttonLocator);
@@ -102,10 +194,17 @@ public class PassengerInfoPage {
             Select select = new Select(selectElement);
             select.selectByValue(valueToSelect);
 
+            // kích hoạt sự kiện change & input để framework nhận giá trị
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            js.executeScript(
+                    "arguments[0].dispatchEvent(new Event('input', { bubbles: true }));" +
+                            "arguments[0].dispatchEvent(new Event('change', { bubbles: true }));",
+                    selectElement
+            );
+
             String selectedText = select.getFirstSelectedOption().getText();
 
-            // Cập nhật text trên button
-            JavascriptExecutor js = (JavascriptExecutor) driver;
+            // Cập nhật text hiển thị trên button (nếu button chỉ là UI fake)
             js.executeScript("arguments[0].innerText=arguments[1];", button, selectedText);
 
             System.out.println("Đã chọn [" + buttonLocator + "]: " + selectedText);

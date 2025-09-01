@@ -27,10 +27,10 @@ public class ApplyTest {
 
     @Test
     public void testFillTripDetailForm() throws InterruptedException {
-        tripDetailPage.selectApplicants("5");
-        Thread.sleep(1000); // Ch chờ 1 giây
+        tripDetailPage.selectApplicants("1");
+        Thread.sleep(1000);
 
-        tripDetailPage.selectPurpose("e_tourist|5YM");
+        tripDetailPage.selectPurpose("e_tourist|1MD");
         Thread.sleep(1000);
 
         tripDetailPage.selectEntryDate("2025-09-10");
@@ -51,22 +51,32 @@ public class ApplyTest {
         passengerInfoPage.sendKeyFullnameInput("Nhat Huy");
         Thread.sleep(1000);
 
-        passengerInfoPage.selectGender("1");
+        passengerInfoPage.selectGender("2");
         Thread.sleep(1000);
 
         passengerInfoPage.selectDob("2003-08-04");
         Thread.sleep(1000);
 
-        passengerInfoPage.searchAndSelectNationality("Vietnam", "Vietnam");
+        passengerInfoPage.searchAndSelectNationality("Vi", "Vietnam");
         Thread.sleep(1000);
 
-        passengerInfoPage.searchAndSelectNation("Vietnam", "Vietnam");
+        passengerInfoPage.searchAndSelectNation("Vi", "Vietnam");
         Thread.sleep(1000);
 
         passengerInfoPage.sendKeyPassport("111111111111");
         Thread.sleep(1000);
 
-        passengerInfoPage.selectExpired("2025-11-01");
+        passengerInfoPage.selectExpired("2025-12-31");
+        Thread.sleep(1000);
+
+        passengerInfoPage.uploadPassport("C:\\Users\\ADMIN\\Downloads\\image.jpg");
+        Thread.sleep(1000);
+
+        passengerInfoPage.uploadPortrait("C:\\Users\\ADMIN\\Downloads\\image.jpg");
+        Thread.sleep(1000);
+
+        passengerInfoPage.clickSave();
+        Thread.sleep(2000);
     }
 
     @AfterEach
