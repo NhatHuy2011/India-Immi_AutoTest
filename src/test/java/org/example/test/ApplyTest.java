@@ -2,6 +2,7 @@ package org.example.test;
 
 import org.example.pages.ContactInfoPage;
 import org.example.pages.PassengerInfoPage;
+import org.example.pages.PaymentPage;
 import org.example.pages.TripDetailPage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ public class ApplyTest {
     private TripDetailPage tripDetailPage;
     private PassengerInfoPage passengerInfoPage;
     private ContactInfoPage contactInfoPage;
+    private PaymentPage paymentPage;
 
     @BeforeEach
     public void setUp() {
@@ -26,6 +28,7 @@ public class ApplyTest {
         tripDetailPage = new TripDetailPage(driver);
         passengerInfoPage = new PassengerInfoPage(driver);
         contactInfoPage = new ContactInfoPage(driver);
+        paymentPage = new PaymentPage(driver);
     }
 
     @Test
@@ -96,7 +99,7 @@ public class ApplyTest {
         contactInfoPage.setPhoneInput("3636363636");
         Thread.sleep(1000);
 
-        contactInfoPage.setPrimaryEmailInput("huyhuy1111@gmail.com");
+        contactInfoPage.setPrimaryEmailInput("huydt04082003@gmail.com");
         Thread.sleep(1000);
 
         contactInfoPage.clickConfirm();
@@ -106,6 +109,13 @@ public class ApplyTest {
         Thread.sleep(1000);
 
         contactInfoPage.clickContinue();
+        Thread.sleep(1000);
+
+        //Payment
+        paymentPage.selectPayment("2");
+        Thread.sleep(1000);
+
+        paymentPage.clickPaymentButton();
         Thread.sleep(1000);
     }
 
