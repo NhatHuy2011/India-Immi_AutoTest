@@ -1,5 +1,6 @@
 package org.example.test;
 
+import org.example.pages.ContactInfoPage;
 import org.example.pages.PassengerInfoPage;
 import org.example.pages.TripDetailPage;
 import org.junit.jupiter.api.AfterEach;
@@ -14,6 +15,7 @@ public class ApplyTest {
     private WebDriver driver;
     private TripDetailPage tripDetailPage;
     private PassengerInfoPage passengerInfoPage;
+    private ContactInfoPage contactInfoPage;
 
     @BeforeEach
     public void setUp() {
@@ -23,10 +25,12 @@ public class ApplyTest {
         driver.get("https://india-immi.org/vi/apply");
         tripDetailPage = new TripDetailPage(driver);
         passengerInfoPage = new PassengerInfoPage(driver);
+        contactInfoPage = new ContactInfoPage(driver);
     }
 
     @Test
     public void testFillTripDetailForm() throws InterruptedException {
+        //Trip Detail
         tripDetailPage.selectApplicants("1");
         Thread.sleep(1000);
 
@@ -48,6 +52,7 @@ public class ApplyTest {
         tripDetailPage.clickContinue();
         Thread.sleep(1000);
 
+        //Passenger Info
         passengerInfoPage.sendKeyFullnameInput("Nhat Huy");
         Thread.sleep(1000);
 
@@ -76,7 +81,32 @@ public class ApplyTest {
         Thread.sleep(1000);
 
         passengerInfoPage.clickSave();
-        Thread.sleep(2000);
+        Thread.sleep(1000);
+
+        //Contact Info
+        contactInfoPage.setContactTitleButton("2");
+        Thread.sleep(1000);
+
+        contactInfoPage.setContactFullnameInput("Nhat Huy");
+        Thread.sleep(1000);
+
+        contactInfoPage.searchAndSelectPhoneInput("Vi", "Vietnam");
+        Thread.sleep(1000);
+
+        contactInfoPage.setPhoneInput("3636363636");
+        Thread.sleep(1000);
+
+        contactInfoPage.setPrimaryEmailInput("huyhuy1111@gmail.com");
+        Thread.sleep(1000);
+
+        contactInfoPage.clickConfirm();
+        Thread.sleep(1000);
+
+        contactInfoPage.clickAccept();
+        Thread.sleep(1000);
+
+        contactInfoPage.clickContinue();
+        Thread.sleep(1000);
     }
 
     @AfterEach
