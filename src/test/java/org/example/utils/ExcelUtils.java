@@ -6,6 +6,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,13 +28,20 @@ public class ExcelUtils {
             while (rows.hasNext()) {
                 Row row = rows.next();
                 String[] rowData = new String[row.getLastCellNum()];
+                boolean isEmpty = true;
 
                 for (int i = 0; i < row.getLastCellNum(); i++) {
                     Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
                     rowData[i] = getCellValue(cell);
+                    if (!rowData[i].isEmpty()) {
+                        isEmpty = false;
+                    }
                 }
 
-                data.add(rowData);
+                // chỉ add khi có ít nhất 1 ô không rỗng
+                if (!isEmpty) {
+                    data.add(rowData);
+                }
             }
 
         } catch (IOException e) {
@@ -50,10 +58,11 @@ public class ExcelUtils {
                 return cell.getStringCellValue().trim();
             case NUMERIC:
                 if (DateUtil.isCellDateFormatted(cell)) {
-                    return cell.getDateCellValue().toString();
+                    // Format ngày theo yyyy-MM-dd
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    return sdf.format(cell.getDateCellValue());
                 } else {
                     double value = cell.getNumericCellValue();
-                    // Nếu là số nguyên thì bỏ ".0"
                     if (value == (long) value) {
                         return String.valueOf((long) value);
                     } else {
@@ -63,7 +72,16 @@ public class ExcelUtils {
             case BOOLEAN:
                 return String.valueOf(cell.getBooleanCellValue());
             case FORMULA:
-                return cell.getCellFormula();
+                try {
+                    return cell.getStringCellValue();
+                } catch (IllegalStateException e) {
+                    try {
+                        double value = cell.getNumericCellValue();
+                        return String.valueOf(value);
+                    } catch (Exception ex) {
+                        return cell.getCellFormula();
+                    }
+                }
             case BLANK:
             default:
                 return "";

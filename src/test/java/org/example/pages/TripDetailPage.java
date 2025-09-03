@@ -56,11 +56,10 @@ public class TripDetailPage {
             // Gõ từ khoá để filter
             input.sendKeys(keyword);
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            WebElement option = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                    By.xpath("//div[@role='option' and @data-value=\"" + optionToPick + "\"]")
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+            WebElement option = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//div[@role='option' and contains(@data-value, \"" + optionToPick + "\")]")
             ));
-
             ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", option);
             option.click();
 
