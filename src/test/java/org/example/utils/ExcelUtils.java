@@ -88,22 +88,19 @@ public class ExcelUtils {
         }
     }
 
-    public static void writeTestResults(String filePath, String sheetName, int rowIndex, String actualResult, String status) {
+    public static void writeTestResults(String filePath, String sheetName, int rowIndex, String actualResult, int actualIndex, String status, int statusIndex) {
         try (FileInputStream fis = new FileInputStream(filePath);
             Workbook workbook = new XSSFWorkbook(fis)) {
 
             Sheet sheet = workbook.getSheet(sheetName);
-            Row row = sheet.getRow(rowIndex);
+            Row row = sheet.getRow(rowIndex - 1);
 
-            // Create or update cell for ActualResult (column 7, index 6)
-            Cell actualResultCell = row.getCell(7, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+            Cell actualResultCell = row.getCell(actualIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
             actualResultCell.setCellValue(actualResult);
 
-            // Create or update cell for Status (column 8, index 7)
-            Cell statusCell = row.getCell(8, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+            Cell statusCell = row.getCell(statusIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
             statusCell.setCellValue(status);
 
-            // Write changes back to the file
             try (FileOutputStream fos = new FileOutputStream(filePath)) {
                 workbook.write(fos);
             }

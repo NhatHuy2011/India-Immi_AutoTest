@@ -13,15 +13,20 @@ public class TripDetailPage {
 
     private final By applicantButton = By.id("applicants");
     private final By applicantSelect = By.xpath("//button[@id='applicants']/following-sibling::select");
+    private final By applicantError = By.xpath("//div[.//button[@id='applicants']]//p[contains(@class,'text-destructive')]");
 
     private final By purposeButton = By.id("purpose");
     private final By purposeSelect = By.xpath("//button[@id='purpose']/following-sibling::select");
+    private final By purposeError = By.xpath("//div[.//button[@id='purpose']]//p[contains(@class,'text-destructive')]");
 
     private final By entryDateInput = By.id("entry_date");
+    private final By entryDateError = By.xpath("//div[.//button[@id='entry_date']]//p[contains(@class,'text-destructive')]");
 
     private final By exitDateInput = By.id("exit_date");
+    private final By exitDateError = By.xpath("//div[.//button[@id='exit_date']]//p[contains(@class,'text-destructive')]");
 
     private final By arrivalPortInput = By.id("arrival_port");
+    private final By arrivalPortError = By.xpath("//div[.//button[@id='arrival_port']]//p[contains(@class,'text-destructive')]");
 
     private final By radioGroup = By.id("processing_time");
     private final String optionByValue = ".//button[@role='radio' and @value='%s']";
@@ -53,19 +58,22 @@ public class TripDetailPage {
             WebElement input = driver.findElement(arrivalPortInput);
             input.click();
 
-            // Gõ từ khoá để filter
-            input.sendKeys(keyword);
+            if(keyword != null && !keyword.trim().isEmpty()){
+                input.sendKeys(keyword);
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-            WebElement option = wait.until(ExpectedConditions.elementToBeClickable(
-                    By.xpath("//div[@role='option' and contains(@data-value, \"" + optionToPick + "\")]")
-            ));
-            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", option);
-            option.click();
+                if(optionToPick != null && !optionToPick.trim().isEmpty()){
+                    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+                    WebElement option = wait.until(ExpectedConditions.elementToBeClickable(
+                            By.xpath("//div[@role='option' and contains(@data-value, \"" + optionToPick + "\")]")
+                    ));
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", option);
+                    option.click();
+                }
+            } else {
 
-            System.out.println("Đã chọn cảng nhập cảnh (search): " + optionToPick);
+            }
         } catch (Exception e) {
-            System.out.println("Lỗi khi search arrival_port: " + e.getMessage());
+
         }
     }
 
@@ -79,45 +87,55 @@ public class TripDetailPage {
             WebElement option = wait.until(ExpectedConditions.elementToBeClickable(group.findElement(optionLocator)));
 
             option.click();
-
-            System.out.println("Đã chọn thời gian xử lý: " + value);
         } catch (Exception e) {
-            System.out.println("Lỗi khi chọn processing_time: " + e.getMessage());
+
         }
     }
 
-    public void clickContinue() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+    public boolean clickContinue() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
 
         try {
-            // Kiểm tra sự tồn tại của nút
-            WebElement btn = wait.until(ExpectedConditions.presenceOfElementLocated(continueBtn));
-            System.out.println("Nút tìm thấy: " + btn.isDisplayed());
+            WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(continueBtn));
 
-            // Kiểm tra trạng thái enabled
-            boolean isEnabled = btn.isEnabled();
-            String disabledAttr = btn.getAttribute("disabled");
-            System.out.println("Nút enabled: " + isEnabled + ", Thuộc tính disabled: " + disabledAttr);
-
-            if (!isEnabled || disabledAttr != null) {
-                throw new RuntimeException("Nút 'Tiếp tục' bị vô hiệu hóa. Kiểm tra form.");
-            }
-
-            // Scroll và click
             ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", btn);
-            btn.click(); // Thử click bằng Selenium trước
+            btn.click();
             wait.until(ExpectedConditions.visibilityOfElementLocated(
                     By.cssSelector("div[role='dialog'][data-state='open']")
             ));
-            System.out.println("Nhấn nút thành công.");
+
+            return true;
         } catch (Exception e) {
-            System.out.println("Lỗi khi nhấn nút: " + e.getMessage());
-            // Thử click bằng JS
-            WebElement btn = driver.findElement(continueBtn);
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
-            wait.until(ExpectedConditions.visibilityOfElementLocated(
-                    By.cssSelector("div[role='dialog'][data-state='open']")
-            ));
+            return false;
+        }
+    }
+
+    public String getErrorMessage() {
+        try {
+            return driver.findElement(applicantError).getText().trim();
+        } catch (Exception e1) {
+            try {
+                return driver.findElement(purposeError).getText().trim();
+            } catch (Exception e2) {
+                try {
+                    return driver.findElement(entryDateError).getText().trim();
+                } catch (Exception e3) {
+                    try {
+                        return driver.findElement(exitDateError).getText().trim();
+                    } catch (Exception e4) {
+                        try {
+                            return driver.findElement(arrivalPortError).getText().trim();
+                        } catch (Exception e5) {
+                            try {
+                                WebElement emptyMsg = driver.findElement(By.cssSelector("div[cmdk-empty]"));
+                                return emptyMsg.getText().trim();
+                            } catch (Exception e6){
+                                return "";
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -142,42 +160,37 @@ public class TripDetailPage {
 
             // Cập nhật text hiển thị trên button (nếu button chỉ là UI fake)
             js.executeScript("arguments[0].innerText=arguments[1];", button, selectedText);
-
-            System.out.println("Đã chọn [" + buttonLocator + "]: " + selectedText);
         } catch (Exception e) {
-            System.out.println("Lỗi khi chọn dropdown [" + buttonLocator + "]: " + e.getMessage());
+
         }
     }
 
     //Pick year-month-date
     private void pickDate(By inputLocator, String dateValue) {
-        driver.findElement(inputLocator).click();
+        if (dateValue == null || dateValue.trim().isEmpty()) {
+            return;
+        }
 
+        driver.findElement(inputLocator).click();
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
         LocalDate date = LocalDate.parse(dateValue);
 
-        // 1. Chọn năm
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div[data-slot='calendar']")));
+
         WebElement yearDropdown = driver.findElement(By.cssSelector("select.rdp-years_dropdown"));
         new Select(yearDropdown).selectByValue(String.valueOf(date.getYear()));
 
-        // 2. Chọn tháng
         WebElement monthDropdown = driver.findElement(By.cssSelector("select.rdp-months_dropdown"));
         new Select(monthDropdown).selectByValue(String.valueOf(date.getMonthValue() - 1));
 
-        // 3. Click ngày (tìm lại calendarRoot sau khi DOM thay đổi)
         String dataDay = date.getMonthValue() + "/" + date.getDayOfMonth() + "/" + date.getYear();
 
-        wait.until(d -> {
-            WebElement calendarRoot = driver.findElement(By.cssSelector("div[data-slot='calendar']"));
-            try {
-                WebElement dayButton = calendarRoot.findElement(By.cssSelector("button.rdp-day[data-day='" + dataDay + "']"));
-                dayButton.click();
-                return true; // click thành công
-            } catch (StaleElementReferenceException | NoSuchElementException e) {
-                return false; // retry
-            }
-        });
+        WebElement dayButton = driver.findElement(By.cssSelector("button.rdp-day[data-day='" + dataDay + "']"));
+        if (dayButton.getAttribute("disabled") != null) {
+            throw new IllegalArgumentException("Ngày không hợp lệ");
+        }
+
+        dayButton.click();
     }
 }

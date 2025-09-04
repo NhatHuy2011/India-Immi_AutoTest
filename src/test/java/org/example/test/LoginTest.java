@@ -27,7 +27,7 @@ public class LoginTest {
     void testLogin() throws InterruptedException {
         List<String[]> testData = ExcelUtils.readExcel(FILE_PATH, "Login");
 
-        int rowIndex = 1;
+        int rowIndex = 2;
         for (String[] row : testData) {
             String emailValue = row[4];
             String passwordValue = row[5];
@@ -64,7 +64,7 @@ public class LoginTest {
 
             // ghi kết quả vào Excel
             String status = isTestPassed ? "Pass" : "Fail";
-            ExcelUtils.writeTestResults(FILE_PATH, "Login", rowIndex, actualMessage, status);
+            ExcelUtils.writeTestResults(FILE_PATH, "Login", rowIndex, actualMessage, 7, status, 8);
 
             driver.quit();
             rowIndex++;
