@@ -88,23 +88,32 @@ public class ExcelUtils {
         }
     }
 
-    public static void writeTestResults(String filePath, String sheetName, int rowIndex, String actualResult, int actualIndex, String status, int statusIndex) {
+    public static void writeTestResults(String filePath, String sheetName,
+                                        int rowIndex /* 1-based */,
+                                        String actualResult, int actualIndex /* 0-based */,
+                                        String status, int statusIndex /* 0-based */) {
         try (FileInputStream fis = new FileInputStream(filePath);
-            Workbook workbook = new XSSFWorkbook(fis)) {
+             Workbook workbook = new XSSFWorkbook(fis)) {
 
             Sheet sheet = workbook.getSheet(sheetName);
+
+            // Lấy hoặc tạo dòng (Excel 1-based -> Apache POI 0-based)
             Row row = sheet.getRow(rowIndex - 1);
+            if (row == null) {
+                row = sheet.createRow(rowIndex - 1);
+            }
 
+            // Ghi Actual
             Cell actualResultCell = row.getCell(actualIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-            actualResultCell.setCellValue(actualResult);
+            actualResultCell.setCellValue(actualResult == null ? "" : actualResult);
 
+            // Ghi Status
             Cell statusCell = row.getCell(statusIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-            statusCell.setCellValue(status);
+            statusCell.setCellValue(status == null ? "" : status);
 
             try (FileOutputStream fos = new FileOutputStream(filePath)) {
                 workbook.write(fos);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

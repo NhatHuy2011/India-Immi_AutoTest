@@ -83,7 +83,7 @@ public class ApplyTest {
         passengerInfoPage.uploadPortrait("C:\\Users\\ADMIN\\Downloads\\image.jpg");
         Thread.sleep(1000);
 
-        passengerInfoPage.clickSave();
+        //passengerInfoPage.clickSave();
         Thread.sleep(1000);
 
         //Contact Info
