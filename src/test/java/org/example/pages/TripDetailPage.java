@@ -112,35 +112,6 @@ public class TripDetailPage {
         }
     }
 
-    public String getErrorMessage() {
-        try {
-            return driver.findElement(applicantError).getText().trim();
-        } catch (Exception e1) {
-            try {
-                return driver.findElement(purposeError).getText().trim();
-            } catch (Exception e2) {
-                try {
-                    return driver.findElement(entryDateError).getText().trim();
-                } catch (Exception e3) {
-                    try {
-                        return driver.findElement(exitDateError).getText().trim();
-                    } catch (Exception e4) {
-                        try {
-                            return driver.findElement(arrivalPortError).getText().trim();
-                        } catch (Exception e5) {
-                            try {
-                                WebElement emptyMsg = driver.findElement(By.cssSelector("div[cmdk-empty]"));
-                                return emptyMsg.getText().trim();
-                            } catch (Exception e6){
-                                return "";
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public List<String> getAllErrorMessages() {
         List<String> errors = new ArrayList<>();
 

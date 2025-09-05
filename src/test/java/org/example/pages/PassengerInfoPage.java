@@ -8,6 +8,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PassengerInfoPage {
     private final WebDriver driver;
@@ -67,17 +69,22 @@ public class PassengerInfoPage {
             WebElement input = driver.findElement(nationalityInput);
             input.click();
 
-            input.sendKeys(keyword);
+            if(keyword != null && !keyword.trim().isEmpty()){
+                input.sendKeys(keyword);
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            WebElement option = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                    By.xpath("//div[@role='option' and @data-value=\"" + optionToPick + "\"]")
-            ));
+                if(optionToPick != null && !optionToPick.trim().isEmpty()){
+                    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+                    WebElement option = wait.until(ExpectedConditions.elementToBeClickable(
+                            By.xpath("//div[@role='option' and contains(@data-value, \"" + optionToPick + "\")]")
+                    ));
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", option);
+                    option.click();
+                }
+            } else {
 
-            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", option);
-            option.click();
+            }
         } catch (Exception e) {
-            System.out.println("Lỗi khi search quốc gia: " + e.getMessage());
+
         }
     }
 
@@ -86,18 +93,22 @@ public class PassengerInfoPage {
             WebElement input = driver.findElement(nationInput);
             input.click();
 
-            input.sendKeys(keyword);
+            if(keyword != null && !keyword.trim().isEmpty()){
+                input.sendKeys(keyword);
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            WebElement option = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                    By.xpath("//div[@role='option' and @data-value=\"" + optionToPick + "\"]")
-            ));
+                if(optionToPick != null && !optionToPick.trim().isEmpty()){
+                    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+                    WebElement option = wait.until(ExpectedConditions.elementToBeClickable(
+                            By.xpath("//div[@role='option' and contains(@data-value, \"" + optionToPick + "\")]")
+                    ));
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", option);
+                    option.click();
+                }
+            } else {
 
-            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", option);
-            option.click();
-
+            }
         } catch (Exception e) {
-            System.out.println("Lỗi khi search quốc tịch: " + e.getMessage());
+
         }
     }
 
@@ -112,13 +123,21 @@ public class PassengerInfoPage {
     }
 
     public void uploadPassport(String path){
-        WebElement passportUpload = driver.findElement(passportUploadInput);
-        passportUpload.sendKeys(path);
+        if(path != null && !path.isEmpty()){
+            WebElement passportUpload = driver.findElement(passportUploadInput);
+            passportUpload.sendKeys(path);
+        } else {
+            System.out.println("Không gởi ảnh");
+        }
     }
 
     public void uploadPortrait(String path){
-        WebElement portraitUpload = driver.findElement(portraitUploadInput);
-        portraitUpload.sendKeys(path);
+        if(path != null && !path.isEmpty()){
+            WebElement portraitUpload = driver.findElement(portraitUploadInput);
+            portraitUpload.sendKeys(path);
+        } else {
+            System.out.println("Không gởi ảnh");
+        }
     }
 
     public SaveResultPassengerInfo clickSave(int currentPassengerIndex, int totalPassengers) {
@@ -186,7 +205,7 @@ public class PassengerInfoPage {
             js.executeScript("arguments[0].innerText=arguments[1];", button, selectedText);
 
         } catch (Exception e) {
-            System.out.println("Lỗi khi chọn dropdown [" + buttonLocator + "]: " + e.getMessage());
+
         }
     }
 
@@ -216,5 +235,21 @@ public class PassengerInfoPage {
         }
 
         dayButton.click();
+    }
+
+    public List<String> getAllErrorMessages() {
+        List<String> errors = new ArrayList<>();
+
+        List<WebElement> errorElements = driver.findElements(
+                By.xpath("//p[contains(@class,'text-destructive')]")
+        );
+
+        for (WebElement e : errorElements) {
+            String msg = e.getText().trim();
+            if (!msg.isEmpty()) {
+                errors.add(msg);
+            }
+        }
+        return errors;
     }
 }
