@@ -10,7 +10,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TripDetailTest {
     private WebDriver driver;
@@ -24,8 +26,8 @@ public class TripDetailTest {
     @Test
     void testTripDetailForm() throws InterruptedException {
         List<String[]> testData = ExcelUtils.readExcel(FILE_PATH, "TripDetail");
-
         int rowIndex = 2;
+
         for (String[] row : testData) {
             String numbers = row[4];
             String purpose = row[5];
@@ -43,7 +45,7 @@ public class TripDetailTest {
             TripDetailPage tripDetailPage = new TripDetailPage(driver);
 
             String actualMessage;
-            boolean click = false;
+            boolean isTestPassed;
 
             try {
                 tripDetailPage.selectApplicants(numbers);
@@ -60,20 +62,36 @@ public class TripDetailTest {
 
                 tripDetailPage.selectProcessingTime(processingTime);
 
-                click = tripDetailPage.clickContinue();
-                actualMessage = click
-                        ? "Form thông tin hành khách hiển thị"
-                        : tripDetailPage.getErrorMessage();
+                boolean click = tripDetailPage.clickContinue();
+
+                if (expected.contains(";")) {
+                    //Nhiều lỗi
+                    List<String> expectedErrors = Arrays.stream(expected.split(";"))
+                            .map(String::trim)
+                            .toList();
+
+                    List<String> actualErrors = tripDetailPage.getAllErrorMessages();
+
+                    isTestPassed = actualErrors.containsAll(expectedErrors)
+                            && expectedErrors.containsAll(actualErrors); // so khớp 2 chiều
+
+                    actualMessage = String.join(";", actualErrors);
+                } else {
+                    //1 Lỗi
+                    actualMessage = click
+                            ? "Form thông tin hành khách hiển thị"
+                            : tripDetailPage.getErrorMessage();
+
+                    isTestPassed = expected.trim().equalsIgnoreCase(actualMessage);
+                }
 
             } catch (ElementClickInterceptedException e) {
-                // Trường hợp click vào ngày bị disable
                 actualMessage = "Ngày không hợp lệ";
+                isTestPassed = expected.trim().equalsIgnoreCase(actualMessage);
             } catch (Exception e) {
                 actualMessage = e.getMessage();
+                isTestPassed = expected.trim().equalsIgnoreCase(actualMessage);
             }
-
-            // So sánh kết quả
-            boolean isTestPassed = expected.trim().equalsIgnoreCase(actualMessage);
 
             String status = isTestPassed ? "Pass" : "Fail";
             ExcelUtils.writeTestResults(FILE_PATH, "TripDetail", rowIndex, actualMessage, 12, status, 13);

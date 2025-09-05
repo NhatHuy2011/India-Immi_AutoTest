@@ -1,5 +1,6 @@
 package org.example.pages;
 
+import org.example.enums.SaveResultPassengerInfo;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -22,16 +23,22 @@ public class PassengerInfoPage {
     private final By dobError = By.xpath("//div[.//input[@id='dob']]//p[contains(@class,'text-destructive')]");
 
     private final By nationalityInput = By.xpath("(//input[@id='nationality'])[1]");
+    private final By nationalityInputError = By.xpath("//input[@id='nationality'])[1]/p[contains(@class,'text-destructive')][1]");
 
     private final By nationInput = By.xpath("(//input[@id='nationality'])[2]");
+    private final By nationInputError = By.xpath("(//input[@id='nationality'])[2]/p[contains(@class,'text-destructive')][1]");
 
     private final By passportInput = By.name("passport_number");
+    private final By passportInputError = By.xpath("//div[.//input[@name='passport_number']]//p[contains(@class,'text-destructive')]");
 
     private final By expiredInput = By.id("expired_date");
+    private final By expiredInputError = By.xpath("//div[.//input[@id='expired_date']]//p[contains(@class,'text-destructive')]");
 
     private final By passportUploadInput = By.id("passport-upload");
+    private final By passportUploadInputError = By.xpath("//div[.//input[@id='passport-upload']]//p[contains(@class,'text-destructive')]");
 
-    private final By portrainUploadInput = By.id("portrait-upload");
+    private final By portraitUploadInput = By.id("portrait-upload");
+    private final By portraitUploadInputError = By.xpath("//div[.//input[@id='portrait-upload']]//p[contains(@class,'text-destructive')]");
 
     private final By saveButton = By.cssSelector("button.inline-flex.w-32.h-14[type='submit']");
 
@@ -110,17 +117,11 @@ public class PassengerInfoPage {
     }
 
     public void uploadPortrait(String path){
-        WebElement portraitUpload = driver.findElement(portrainUploadInput);
+        WebElement portraitUpload = driver.findElement(portraitUploadInput);
         portraitUpload.sendKeys(path);
     }
 
-    public enum SaveResult {
-        NEXT_PASSENGER,
-        CONTACT_INFO,
-        FAILED
-    }
-
-    public SaveResult clickSave(int currentPassengerIndex, int totalPassengers) {
+    public SaveResultPassengerInfo clickSave(int currentPassengerIndex, int totalPassengers) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 
         try {
@@ -134,15 +135,15 @@ public class PassengerInfoPage {
                 wait.until(ExpectedConditions.visibilityOfElementLocated(
                         By.cssSelector("div[role='dialog'][data-state='open']")
                 ));
-                return SaveResult.NEXT_PASSENGER;
+                return SaveResultPassengerInfo.NEXT_PASSENGER;
             } else {
                 wait.until(ExpectedConditions.visibilityOfElementLocated(
                         By.cssSelector("div.grid.grid-cols-1.lg\\:grid-cols-2.gap-4")
                 ));
-                return SaveResult.CONTACT_INFO;
+                return SaveResultPassengerInfo.CONTACT_INFO;
             }
         } catch (Exception e) {
-            return SaveResult.FAILED;
+            return SaveResultPassengerInfo.FAILED;
         }
     }
 
@@ -190,33 +191,30 @@ public class PassengerInfoPage {
     }
 
     private void pickDate(By inputLocator, String dateValue) {
-        driver.findElement(inputLocator).click();
+        if (dateValue == null || dateValue.trim().isEmpty()){
+            return;
+        }
 
+        driver.findElement(inputLocator).click();
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
         LocalDate date = LocalDate.parse(dateValue);
 
-        // 1. Chọn năm
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div[data-slot='calendar']")));
+
         WebElement yearDropdown = driver.findElement(By.cssSelector("select.rdp-years_dropdown"));
         new Select(yearDropdown).selectByValue(String.valueOf(date.getYear()));
 
-        // 2. Chọn tháng
         WebElement monthDropdown = driver.findElement(By.cssSelector("select.rdp-months_dropdown"));
         new Select(monthDropdown).selectByValue(String.valueOf(date.getMonthValue() - 1));
 
-        // 3. Click ngày (tìm lại calendarRoot sau khi DOM thay đổi)
         String dataDay = date.getMonthValue() + "/" + date.getDayOfMonth() + "/" + date.getYear();
 
-        wait.until(d -> {
-            WebElement calendarRoot = driver.findElement(By.cssSelector("div[data-slot='calendar']"));
-            try {
-                WebElement dayButton = calendarRoot.findElement(By.cssSelector("button.rdp-day[data-day='" + dataDay + "']"));
-                dayButton.click();
-                return true; // click thành công
-            } catch (StaleElementReferenceException | NoSuchElementException e) {
-                return false; // retry
-            }
-        });
+        WebElement dayButton = driver.findElement(By.cssSelector("button.rdp-day[data-day='" + dataDay + "']"));
+        if (dayButton.getAttribute("disabled") != null) {
+            throw new IllegalArgumentException("Ngày không hợp lệ");
+        }
+
+        dayButton.click();
     }
 }

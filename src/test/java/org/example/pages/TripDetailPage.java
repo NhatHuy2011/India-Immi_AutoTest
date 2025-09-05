@@ -7,6 +7,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TripDetailPage {
     private final WebDriver driver;
@@ -137,6 +139,22 @@ public class TripDetailPage {
                 }
             }
         }
+    }
+
+    public List<String> getAllErrorMessages() {
+        List<String> errors = new ArrayList<>();
+
+        List<WebElement> errorElements = driver.findElements(
+                By.xpath("//p[contains(@class,'text-destructive')]")
+        );
+
+        for (WebElement e : errorElements) {
+            String msg = e.getText().trim();
+            if (!msg.isEmpty()) {
+                errors.add(msg);
+            }
+        }
+        return errors;
     }
 
     //Show content in button dropdown
