@@ -1,11 +1,15 @@
 package org.example.pages;
 
+import org.example.enums.ContinueContactInfo;
+import org.example.enums.SaveResultPassengerInfo;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ContactInfoPage {
     private final WebDriver driver;
@@ -62,8 +66,6 @@ public class ContactInfoPage {
             // Scroll đến option và click bằng JS
             ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", option);
             ((JavascriptExecutor) driver).executeScript("arguments[0].click();", option);
-
-            System.out.println("✅ Đã chọn mã vùng điện thoại: " + optionToPick);
         } catch (Exception e) {
             System.out.println("❌ Lỗi khi search mã vùng điện thoại: " + e.getMessage());
         }
@@ -87,49 +89,64 @@ public class ContactInfoPage {
         secondaryEmail.sendKeys(value);
     }
 
-    public void clickConfirm(){
-        WebElement confirm = driver.findElement(confirmCheckbox);
-        confirm.click();
+    public void clickConfirm(int option){
+        if(option == 1){
+            WebElement confirm = driver.findElement(confirmCheckbox);
+            confirm.click();
+        } else {
+            System.out.println("Don't click confirm");
+        }
     }
 
-    public void clickAccept(){
-        WebElement accept = driver.findElement(acceptCheckbox);
-        accept.click();
+    public void clickAccept(int option){
+        if (option == 1){
+            WebElement accept = driver.findElement(acceptCheckbox);
+            accept.click();
+        } else {
+            System.out.println("Don't click accept");
+        }
     }
 
-    public void clickContinue() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+    public ContinueContactInfo clickContinue(int currentPassengerIndex, int totalPassengers) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
 
         try {
-            // Kiểm tra sự tồn tại của nút
             WebElement btn = wait.until(ExpectedConditions.presenceOfElementLocated(continueButton));
-            System.out.println("Nút tìm thấy: " + btn.isDisplayed());
-
-            // Kiểm tra trạng thái enabled
-            boolean isEnabled = btn.isEnabled();
-            String disabledAttr = btn.getAttribute("disabled");
-            System.out.println("Nút enabled: " + isEnabled + ", Thuộc tính disabled: " + disabledAttr);
-
-            if (!isEnabled || disabledAttr != null) {
-                throw new RuntimeException("Nút 'Tiếp tục' bị vô hiệu hóa. Kiểm tra form.");
-            }
 
             // Scroll và click
             ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", btn);
-            btn.click(); // Thử click bằng Selenium trước
-            wait.until(ExpectedConditions.visibilityOfElementLocated(
-                    By.cssSelector("div.flex.flex-col.gap-6.flex-1")
-            ));
-            System.out.println("Nhấn nút thành công.");
+            btn.click();
+
+            if (currentPassengerIndex < totalPassengers) {
+                wait.until(ExpectedConditions.visibilityOfElementLocated(
+                        By.cssSelector("div[role='dialog'][data-state='open']")
+                ));
+                return ContinueContactInfo.NEXT_PASSENGER;
+            } else {
+                wait.until(ExpectedConditions.visibilityOfElementLocated(
+                        By.cssSelector("div.flex.flex-col.gap-6.flex-1")
+                ));
+                return ContinueContactInfo.PAYMENT_PAGE;
+            }
         } catch (Exception e) {
-            System.out.println("Lỗi khi nhấn nút: " + e.getMessage());
-            // Thử click bằng JS
-            WebElement btn = driver.findElement(continueButton);
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
-            wait.until(ExpectedConditions.visibilityOfElementLocated(
-                    By.cssSelector("div.flex.flex-col.gap-6.flex-1")
-            ));
+            return ContinueContactInfo.FAILED;
         }
+    }
+
+    public List<String> getAllErrorMessages() {
+        List<String> errors = new ArrayList<>();
+
+        List<WebElement> errorElements = driver.findElements(
+                By.xpath("//p[contains(@class,'text-destructive')]")
+        );
+
+        for (WebElement e : errorElements) {
+            String msg = e.getText().trim();
+            if (!msg.isEmpty()) {
+                errors.add(msg);
+            }
+        }
+        return errors;
     }
 
     private void selectHiddenDropdown(By buttonLocator, By selectLocator, String valueToSelect) {

@@ -66,10 +66,9 @@ public class PassengerInfoPage {
 
     public void searchAndSelectNationality(String keyword, String optionToPick) {
         try {
-            WebElement input = driver.findElement(nationalityInput);
-            input.click();
-
             if(keyword != null && !keyword.trim().isEmpty()){
+                WebElement input = driver.findElement(nationalityInput);
+                input.click();
                 input.sendKeys(keyword);
 
                 if(optionToPick != null && !optionToPick.trim().isEmpty()){
@@ -90,10 +89,9 @@ public class PassengerInfoPage {
 
     public void searchAndSelectNation(String keyword, String optionToPick) {
         try {
-            WebElement input = driver.findElement(nationInput);
-            input.click();
-
             if(keyword != null && !keyword.trim().isEmpty()){
+                WebElement input = driver.findElement(nationInput);
+                input.click();
                 input.sendKeys(keyword);
 
                 if(optionToPick != null && !optionToPick.trim().isEmpty()){
@@ -141,7 +139,7 @@ public class PassengerInfoPage {
     }
 
     public SaveResultPassengerInfo clickSave(int currentPassengerIndex, int totalPassengers) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
 
         try {
             WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(saveButton));
@@ -167,7 +165,7 @@ public class PassengerInfoPage {
     }
 
     public boolean clickCancel() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
 
         try {
             WebElement btn = wait.until(ExpectedConditions.presenceOfElementLocated(cancelButton));

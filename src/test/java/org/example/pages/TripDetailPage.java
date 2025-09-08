@@ -57,10 +57,9 @@ public class TripDetailPage {
 
     public void searchAndSelectArrivalPort(String keyword, String optionToPick) {
         try {
-            WebElement input = driver.findElement(arrivalPortInput);
-            input.click();
-
             if(keyword != null && !keyword.trim().isEmpty()){
+                WebElement input = driver.findElement(arrivalPortInput);
+                input.click();
                 input.sendKeys(keyword);
 
                 if(optionToPick != null && !optionToPick.trim().isEmpty()){

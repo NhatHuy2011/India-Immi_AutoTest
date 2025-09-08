@@ -102,13 +102,13 @@ public class ApplyTest {
         contactInfoPage.setPrimaryEmailInput("huydt04082003@gmail.com");
         Thread.sleep(1000);
 
-        contactInfoPage.clickConfirm();
+        contactInfoPage.clickConfirm(1);
         Thread.sleep(1000);
 
-        contactInfoPage.clickAccept();
+        contactInfoPage.clickAccept(1);
         Thread.sleep(1000);
 
-        contactInfoPage.clickContinue();
+        contactInfoPage.clickContinue(1, 1);
         Thread.sleep(1000);
 
         //Payment

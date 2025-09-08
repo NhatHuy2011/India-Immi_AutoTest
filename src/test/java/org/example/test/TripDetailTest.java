@@ -1,5 +1,6 @@
 package org.example.test;
 
+import org.example.enums.SaveResultPassengerInfo;
 import org.example.pages.TripDetailPage;
 import org.example.utils.ExcelUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -103,8 +104,8 @@ public class TripDetailTest {
 
     @Test
     void testOneTestCaseTripDetailForm() throws InterruptedException {
-        int targetRowIndex = 12; // TestData index
-        int excelRowIndex = targetRowIndex + 2; // Ghi lại kết quả
+        int targetRowIndex = 12;
+        int excelRowIndex = targetRowIndex + 2;
 
         List<String[]> testData = ExcelUtils.readExcel(FILE_PATH, "TripDetail");
         String[] row = testData.get(targetRowIndex);
@@ -142,30 +143,17 @@ public class TripDetailTest {
 
             tripDetailPage.selectProcessingTime(processingTime);
 
-            boolean click = tripDetailPage.clickContinue();
+            boolean clickContinue = tripDetailPage.clickContinue();
 
             List<String> actualErrors = tripDetailPage.getAllErrorMessages();
 
-            if (expected.contains(";")) {
-                // Nhiều lỗi
-                List<String> expectedErrors = Arrays.stream(expected.split(";"))
-                        .map(String::trim)
-                        .toList();
-
-                isTestPassed = actualErrors.containsAll(expectedErrors)
-                        && expectedErrors.containsAll(actualErrors);
-
-                actualMessage = String.join(";", actualErrors);
+            if (clickContinue) {
+                actualMessage = "Form thông tin hành khách hiển thị";
+                isTestPassed = expected.equalsIgnoreCase(actualMessage);
             } else {
-                // 1 lỗi hoặc không lỗi
-                if (click && actualErrors.isEmpty()) {
-                    actualMessage = "Form thông tin hành khách hiển thị";
-                } else {
-                    actualMessage = actualErrors.isEmpty() ? "" : actualErrors.get(0);
-                }
-                isTestPassed = expected.trim().equalsIgnoreCase(actualMessage);
+                actualMessage = String.join(";", actualErrors);
+                isTestPassed = actualMessage.equalsIgnoreCase(expected);
             }
-
         } catch (ElementClickInterceptedException e) {
             actualMessage = "Ngày không hợp lệ";
             isTestPassed = expected.trim().equalsIgnoreCase(actualMessage);

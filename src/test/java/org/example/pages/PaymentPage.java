@@ -36,7 +36,7 @@ public class PaymentPage {
     }
 
     public void clickPaymentButton() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
 
         WebElement btn = wait.until(ExpectedConditions.presenceOfElementLocated(paymentButton));
 
@@ -50,7 +50,6 @@ public class PaymentPage {
         try {
             wait.until(ExpectedConditions.elementToBeClickable(paymentButton)).click();
         } catch (Exception e) {
-            // fallback: click bằng JS
             ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
         }
     }

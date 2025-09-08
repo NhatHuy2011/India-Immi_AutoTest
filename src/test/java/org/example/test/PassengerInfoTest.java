@@ -30,11 +30,11 @@ public class PassengerInfoTest {
         List<String[]> testDataPassenger = ExcelUtils.readExcel(FILE_PATH, "PassengerInfo");
 
         // Giới hạn theo rowIndex (vd: từ 0 đến 19)
-        int start = 23;
-        int end = 24;
+        int start = 0;
+        int end = 19;
 
         // Lấy thông tin trip detail
-        String[] tripDetailPass = testDataTripDetail.get(0);
+        String[] tripDetailPass = testDataTripDetail.get(1);
         String numbers = tripDetailPass[4];
         String purpose = tripDetailPass[5];
         String entryDate = tripDetailPass[6];
@@ -166,7 +166,7 @@ public class PassengerInfoTest {
         List<String[]> testDataPassenger = ExcelUtils.readExcel(FILE_PATH, "PassengerInfo");
 
         int start = 20;
-        int end = 29;
+        int end = 30;
 
         for (int rowIndex = start; rowIndex <= end; rowIndex++){
             // Lấy thông tin trip detail
@@ -268,7 +268,7 @@ public class PassengerInfoTest {
         List<String[]> testDataTripDetail = ExcelUtils.readExcel(FILE_PATH, "TripDetail");
         List<String[]> testDataPassenger = ExcelUtils.readExcel(FILE_PATH, "PassengerInfo");
 
-        int targetRowIndex = 23; // TestData index
+        int targetRowIndex = 29; // TestData index
         int excelRowIndex = targetRowIndex + 2; // Ghi lại kết quả
 
         // Lấy thông tin trip detail
